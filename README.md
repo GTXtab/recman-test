@@ -1,69 +1,42 @@
-# React + TypeScript + Vite
+## 🚀 Features
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- The application should be built using React.
+- Users should be able to add new tasks to the list.
+- Users should be able to add/delete columns.
+- Users should be able to move tasks across columns.
+- Users should be able to move columns.
+- Users should be able to remove tasks from the list.
+- Users should be able to mark tasks as complete or incomplete.
+- Users should be able to select multiple/all tasks for manipulation purposes
+(delete, mark as complete, mark as incomplete, move to a different column).
+- Users should be able to search tasks by name.
+- Users should be able to “Select all” tasks in each column.
+- Completed tasks should be visually distinguished from incomplete tasks.
+- Users should be able to filter the list of tasks by their completion status (i.e. show
+only completed tasks or only incomplete tasks).
+- The application should be responsive and work on desktop and mobile devices.
+- Allow users to edit the text of a task after it has been added to the list.
+- Allow users to reorder tasks in the list using drag-and-drop.
+- Persist the list of tasks in local storage so that it is preserved between page
+refreshes.
+- Simple, but nice design. UI/UX should be clear and modern.
+- Do not use UI/component libraries.
+- Allowed to use the following drag&drop library —
+https://atlassian.design/components/pragmatic-drag-and-drop/
 
-Currently, two official plugins are available:
+## 🧩 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React + TypeScript
+- Tailwind CSS
+- @atlaskit/pragmatic-drag-and-drop
+- React Toastify
 
-## Expanding the ESLint configuration
+## 🛠 Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+git clone https://github.com/your-username/recman-test.git
+cd recman-test
+npm install
+npm run dev
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+https://recman-test-beta.vercel.app/ -- deployment site
