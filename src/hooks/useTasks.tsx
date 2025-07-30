@@ -74,14 +74,13 @@ export function useTasks() {
   };
 
   const moveTask = (taskId: string, from: string, to: string, targetIndex?: number) => {
-    // If the task is being moved within the same column and targetIndex is defined, perform reorder
     if (from === to && targetIndex !== undefined) {
       setData((prev) => {
         const ids = [...prev.columns[from].taskIds];
         const oldIndex = ids.indexOf(taskId);
         if (oldIndex === -1 || oldIndex === targetIndex) return prev;
-        ids.splice(oldIndex, 1); // remove the task from the old position
-        ids.splice(targetIndex, 0, taskId); // insert it at the new position
+        ids.splice(oldIndex, 1);
+        ids.splice(targetIndex, 0, taskId);
         return {
           ...prev,
           columns: {
@@ -93,7 +92,6 @@ export function useTasks() {
       return;
     }
 
-    // Moving between different columns or without targetIndex
     setData((prev) => {
       const fromIds = prev.columns[from].taskIds.filter((id) => id !== taskId);
       let toIds = [...prev.columns[to].taskIds];

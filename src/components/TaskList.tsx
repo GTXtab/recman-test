@@ -60,9 +60,7 @@ export function Board({
    * Ref for the scrollable board container.
    */
   const scrollableRef = useRef<HTMLDivElement | null>(null);
-  // Update local data when initial prop changes
   useEffect(() => { setData(initial); }, [initial]);
-  // Set up drag-and-drop monitors for cards and columns
   useEffect(() => {
     const element = scrollableRef.current;
     invariant(element);
@@ -92,56 +90,18 @@ export function Board({
           }
           const cardIndexInHome = home.cards.findIndex((card) => card.id === dragging.card.id);
 
-          // dropping on a card
           if (isCardDropTargetData(dropTargetData)) {
-            console.log('Dropping on card:', {
-              draggingCard: dragging.card.id,
-              targetCard: dropTargetData.card.id,
-              homeColumn: home.id,
-              targetColumn: dropTargetData.columnId
-            });
-
             const destinationColumnIndex = data.columns.findIndex(
               (column) => column.id === dropTargetData.columnId,
             );
             const destination = data.columns[destinationColumnIndex];
-            // reordering in home column
             if (home === destination) {
-              console.log('Reordering within same column');
               const cardFinishIndex = home.cards.findIndex(
                 (card) => card.id === dropTargetData.card.id,
               );
 
-              // could not find cards needed
-              if (cardIndexInHome === -1 || cardFinishIndex === -1) {
-                console.log('Could not find cards:', { cardIndexInHome, cardFinishIndex });
-                return;
-              }
-
-              // no change needed
-              if (cardIndexInHome === cardFinishIndex) {
-                console.log('No change needed');
-                return;
-              }
 
               const closestEdge = extractClosestEdge(dropTargetData);
-              console.log('Closest edge:', closestEdge, 'Drop target data:', dropTargetData);
-              console.log('Card positions:', {
-                startIndex: cardIndexInHome,
-                targetIndex: cardFinishIndex,
-                cards: home.cards.map(c => c.id)
-              });
-
-              // Додаємо детальне логування для reorderWithEdge
-              console.log('Before reorder:', home.cards.map(c => c.id));
-              console.log('Drag operation:', {
-                draggingCard: dragging.card.id,
-                targetCard: dropTargetData.card.id,
-                startIndex: cardIndexInHome,
-                targetIndex: cardFinishIndex,
-                closestEdge,
-                operation: closestEdge === 'top' ? 'insert before' : 'insert after'
-              });
               
               const reordered = reorderWithEdge({
                 axis: 'vertical',
@@ -150,16 +110,6 @@ export function Board({
                 indexOfTarget: cardFinishIndex,
                 closestEdgeOfTarget: closestEdge,
               });
-
-              console.log('After reorder:', reordered.map(c => c.id));
-              console.log('Expected behavior:', {
-                startIndex: cardIndexInHome,
-                targetIndex: cardFinishIndex,
-                closestEdge,
-                shouldMove: cardIndexInHome !== cardFinishIndex || closestEdge === 'bottom'
-              });
-
-              console.log('Reordered cards:', reordered.map(c => c.id));
 
               const updated = {
                 ...home,
@@ -170,18 +120,7 @@ export function Board({
               const newData = { 
                 columns: columns.map(col => ({ ...col }))
               };
-              console.log('Setting new data:', newData);
               setData(newData);
-              console.log('Cards reordered successfully');
-              return;
-            }
-
-            // moving card from one column to another
-            console.log('Moving card between columns');
-
-            // unable to find destination
-            if (!destination) {
-              console.log('Could not find destination column');
               return;
             }
 
@@ -191,13 +130,9 @@ export function Board({
 
             const closestEdge = extractClosestEdge(dropTargetData);
             const finalIndex = closestEdge === 'bottom' ? indexOfTarget + 1 : indexOfTarget;
-            console.log('Final index:', finalIndex);
-
-            // remove card from home list
             const homeCards = Array.from(home.cards);
             homeCards.splice(cardIndexInHome, 1);
 
-            // insert into destination list
             const destinationCards = Array.from(destination.cards);
             destinationCards.splice(finalIndex, 0, dragging.card);
 
@@ -211,11 +146,9 @@ export function Board({
               cards: destinationCards,
             };
             setData({ ...data, columns });
-            console.log('Card moved successfully');
             return;
           }
 
-          // dropping onto a column, but not onto a card
           if (isColumnData(dropTargetData)) {
             const destinationColumnIndex = data.columns.findIndex(
               (column) => column.id === dropTargetData.column.id,
@@ -226,11 +159,7 @@ export function Board({
               return;
             }
 
-            // dropping on home
             if (home === destination) {
-              console.log('moving card to home column');
-
-              // move to last position
               const reordered = reorder({
                 list: home.cards,
                 startIndex: cardIndexInHome,
@@ -247,14 +176,10 @@ export function Board({
               return;
             }
 
-            console.log('moving card to another column');
-
-            // remove card from home list
 
             const homeCards = Array.from(home.cards);
             homeCards.splice(cardIndexInHome, 1);
 
-            // insert into destination list
             const destinationCards = Array.from(destination.cards);
             destinationCards.splice(destination.cards.length, 0, dragging.card);
 

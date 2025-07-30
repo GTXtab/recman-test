@@ -1,7 +1,6 @@
 import React from "react";
 import type { TFilter } from "../types/data";
 import IconButton from "./common/IconButton";
-import AddIcon from "./icons/AddIcon";
 
 interface Props {
   filter: TFilter;
@@ -19,7 +18,7 @@ const FilterAndAddColumn: React.FC<Props> = ({ filter, onFilterChange, onAddColu
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value as TFilter)}
-          className="input-field"
+          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 bg-white text-base"
         >
           <option value="all">All</option>
           <option value="completed">Completed</option>
@@ -29,7 +28,7 @@ const FilterAndAddColumn: React.FC<Props> = ({ filter, onFilterChange, onAddColu
       <div className="flex items-end">
         <IconButton
           onClick={onAddColumn}
-          icon={<AddIcon className="w-4 h-4" />}
+          icon={undefined}
           label="Add column"
           variant="primary"
           className="h-[52px] text-base rounded-xl"

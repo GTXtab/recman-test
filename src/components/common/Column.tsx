@@ -1,29 +1,39 @@
 import {
   dropTargetForElements,
   draggable,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { useEffect, useRef, useState } from 'react';
-import invariant from 'tiny-invariant';
-import { Card } from '../../components/TaskCard';
-import { getColumnData, isCardData, isCardDropTargetData, isDraggingACard, isDraggingAColumn, isColumnData, type TColumn, type TFilter } from '../../types/data';
-import SelectAllIcon from '../icons/SelectAllIcon';
-import DeleteIcon from '../icons/DeleteIcon';
+} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { useEffect, useRef, useState } from "react";
+import invariant from "tiny-invariant";
+import { Card } from "../../components/TaskCard";
+import {
+  getColumnData,
+  isCardData,
+  isCardDropTargetData,
+  isDraggingACard,
+  isDraggingAColumn,
+  isColumnData,
+  type TColumn,
+  type TFilter,
+} from "../../types/data";
+import SelectAllIcon from "../icons/SelectAllIcon";
+import DeleteIcon from "../icons/DeleteIcon";
+import { Button } from "./Button";
 
 type TColumnState =
-  | { type: 'is-card-over'; isOverChildCard: boolean; dragging: DOMRect }
-  | { type: 'is-column-over' }
-  | { type: 'idle' }
-  | { type: 'is-dragging' };
+  | { type: "is-card-over"; isOverChildCard: boolean; dragging: DOMRect }
+  | { type: "is-column-over" }
+  | { type: "idle" }
+  | { type: "is-dragging" };
 
-const idle = { type: 'idle' } as const;
+const idle = { type: "idle" } as const;
 
-const stateStyles: { [Key in TColumnState['type']]: string } = {
-  idle: 'cursor-grab',
-  'is-card-over': 'ring-2 ring-blue-500 ring-offset-2',
-  'is-dragging': 'opacity-40 transform rotate-1',
-  'is-column-over': 'bg-blue-50',
+const stateStyles: { [Key in TColumnState["type"]]: string } = {
+  idle: "cursor-grab",
+  "is-card-over": "ring-2 ring-blue-500 ring-offset-2",
+  "is-dragging": "opacity-40 transform rotate-1",
+  "is-column-over": "bg-blue-50",
 };
 
 interface ColumnProps {
@@ -44,10 +54,10 @@ interface ColumnProps {
  * Column component.
  * Renders a single column with its cards, add/edit/delete logic, and drag-and-drop.
  */
-export function Column({ 
-  column, 
+export function Column({
+  column,
   searchTerm = "",
-  filter = 'all',
+  filter = "all",
   onAddCard,
   onDeleteColumn,
   onEditColumn,
@@ -55,7 +65,7 @@ export function Column({
   onToggleSelect,
   onSelectAll,
   onEdit,
-  onDelete
+  onDelete,
 }: ColumnProps) {
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const outerRef = useRef<HTMLDivElement | null>(null);
@@ -66,24 +76,21 @@ export function Column({
    * Local state for column UI (title editing, add card input, drag state).
    */
   const [state, setState] = useState<TColumnState>(idle);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(column.title);
 
-  // Logging when column changes
-  useEffect(() => { console.log('Column updated:', column.id, 'Cards:', column.cards.map(c => c.id)); }, [column]);
+  const filteredCards = column.cards.filter((card) => {
+    if (filter === "completed" && !card.completed) return false;
+    if (filter === "incomplete" && card.completed) return false;
 
-  // Filtering cards by status and search
-  const filteredCards = column.cards.filter(card => {
-    // Filter by status
-    if (filter === 'completed' && !card.completed) return false;
-    if (filter === 'incomplete' && card.completed) return false;
-    
-    // Filter by search
-    if (searchTerm && !card.description.toLowerCase().includes(searchTerm.toLowerCase())) {
+    if (
+      searchTerm &&
+      !card.description.toLowerCase().includes(searchTerm.toLowerCase())
+    ) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -102,12 +109,24 @@ export function Column({
 
     const data = getColumnData({ column });
 
-    function setIsCardOver({ data, location }: { data: { rect: DOMRect }; location: { current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> } } }) {
+    function setIsCardOver({
+      data,
+      location,
+    }: {
+      data: { rect: DOMRect };
+      location: {
+        current: {
+          dropTargets: Array<{ data: Record<string | symbol, unknown> }>;
+        };
+      };
+    }) {
       const innerMost = location.current.dropTargets[0];
-      const isOverChildCard = Boolean(innerMost && isCardDropTargetData(innerMost.data));
+      const isOverChildCard = Boolean(
+        innerMost && isCardDropTargetData(innerMost.data)
+      );
 
       const proposed: TColumnState = {
-        type: 'is-card-over',
+        type: "is-card-over",
         dragging: data.rect,
         isOverChildCard,
       };
@@ -119,7 +138,7 @@ export function Column({
         element: header,
         getInitialData: () => data,
         onDragStart() {
-          setState({ type: 'is-dragging' });
+          setState({ type: "is-dragging" });
         },
         onDrop() {
           setState(idle);
@@ -142,12 +161,18 @@ export function Column({
             setIsCardOver({ data: source.data, location });
             return;
           }
-          if (isColumnData(source.data) && source.data.column.id !== column.id) {
-            setState({ type: 'is-column-over' });
+          if (
+            isColumnData(source.data) &&
+            source.data.column.id !== column.id
+          ) {
+            setState({ type: "is-column-over" });
           }
         },
         onDragLeave({ source }) {
-          if (isColumnData(source.data) && source.data.column.id === column.id) {
+          if (
+            isColumnData(source.data) &&
+            source.data.column.id === column.id
+          ) {
             return;
           }
           setState(idle);
@@ -162,7 +187,7 @@ export function Column({
         },
         getConfiguration: () => ({ maxScrollSpeed: "fast" }),
         element: scrollable,
-      }),
+      })
     );
   }, [column]);
 
@@ -172,9 +197,9 @@ export function Column({
   const handleAddCard = () => {
     const trimmed = title.trim();
     if (!trimmed) return;
-    
+
     onAddCard?.(column.id, trimmed);
-    setTitle('');
+    setTitle("");
   };
 
   /**
@@ -217,15 +242,21 @@ export function Column({
   };
 
   return (
-    <div className="flex w-80 flex-shrink-0 select-none flex-col" ref={outerRef}>
+    <div
+      className="flex w-80 flex-shrink-0 select-none flex-col"
+      ref={outerRef}
+    >
       <div
         className={`column-card ${stateStyles[state.type]} ${
-          state.type === 'is-column-over' ? 'opacity-50' : ''
+          state.type === "is-column-over" ? "opacity-50" : ""
         }`}
         ref={innerRef}
       >
         <div className="flex flex-col h-full">
-          <div className="flex flex-row items-center justify-between p-4 pb-3 border-b border-gray-200" ref={headerRef}>
+          <div
+            className="flex flex-row items-center justify-between p-4 pb-3 border-b border-gray-200"
+            ref={headerRef}
+          >
             <div className="flex items-center gap-3 flex-1">
               {isEditingTitle ? (
                 <input
@@ -234,15 +265,15 @@ export function Column({
                   onChange={(e) => setEditTitle(e.target.value)}
                   onBlur={handleSaveTitle}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveTitle();
-                    if (e.key === 'Escape') handleCancelTitle();
+                    if (e.key === "Enter") handleSaveTitle();
+                    if (e.key === "Escape") handleCancelTitle();
                   }}
-                  className="input-field"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 bg-white text-base"
                   autoFocus
                   placeholder="Edit column title..."
                 />
               ) : (
-                <div 
+                <div
                   className="font-bold text-lg text-gray-800 cursor-pointer flex-1"
                   onDoubleClick={handleEditTitle}
                 >
@@ -254,20 +285,21 @@ export function Column({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={handleSelectAll}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                variant="default"
                 title="Select all"
               >
                 <SelectAllIcon />
-              </button>
-              <button
+              </Button>
+
+              <Button
                 onClick={handleDeleteColumn}
-                className="p-2 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors duration-200"
+                variant="danger"
                 title="Delete column"
               >
                 <DeleteIcon />
-              </button>
+              </Button>
             </div>
           </div>
           <div
@@ -275,9 +307,9 @@ export function Column({
             ref={scrollableRef}
           >
             {filteredCards.map((card) => (
-              <Card 
-                key={card.id} 
-                card={card} 
+              <Card
+                key={card.id}
+                card={card}
                 columnId={column.id}
                 searchTerm={searchTerm}
                 onToggleComplete={onToggleComplete}
@@ -286,7 +318,7 @@ export function Column({
                 onDelete={onDelete}
               />
             ))}
-            {state.type === 'is-card-over' && !state.isOverChildCard ? (
+            {state.type === "is-card-over" && !state.isOverChildCard ? (
               <div className="flex-shrink-0 px-4 py-2">
                 <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center text-blue-500 bg-blue-50">
                   Drop here
@@ -301,10 +333,10 @@ export function Column({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddCard();
+                  if (e.key === "Enter") handleAddCard();
                 }}
                 placeholder="Add a task..."
-                className="input-field"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 bg-white text-base"
               />
               <button
                 onClick={handleAddCard}

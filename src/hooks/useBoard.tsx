@@ -3,7 +3,6 @@ import type { TBoard, TCard, TColumn, TFilter } from "../types/data";
 import { toast } from "react-toastify";
 
 function getInitialData(): TBoard {
-  // Doing this so we get consistent ids on server and client
   const getCards = (() => {
     let count: number = 0;
 
@@ -35,7 +34,6 @@ export const useBoard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<TFilter>("all");
 
-  // Load data from localStorage
   useEffect(() => {
     const savedData = localStorage.getItem("todo-app-data");
     if (savedData) {
@@ -48,7 +46,6 @@ export const useBoard = () => {
     }
   }, []);
 
-  // Save data to localStorage
   useEffect(() => {
     localStorage.setItem("todo-app-data", JSON.stringify(data));
   }, [data]);
@@ -185,6 +182,7 @@ export const useBoard = () => {
       columns: prevData.columns.filter((column) => column.id !== columnId),
     }));
   };
+
   /**
    * Handler to edit a column's title.
    * @param columnId - Column ID
@@ -198,6 +196,7 @@ export const useBoard = () => {
       ),
     }));
   };
+  
   /**
    * Handler to delete all selected cards in all columns.
    */
@@ -210,6 +209,7 @@ export const useBoard = () => {
       })),
     }));
   };
+
   /**
    * Handler to mark all selected cards as completed.
    */
@@ -224,6 +224,7 @@ export const useBoard = () => {
       })),
     }));
   };
+
   /**
    * Handler to mark all selected cards as uncompleted.
    */
@@ -238,6 +239,7 @@ export const useBoard = () => {
       })),
     }));
   };
+
   /**
    * Handler to clear selection for all cards.
    */

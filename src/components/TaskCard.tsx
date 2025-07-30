@@ -2,8 +2,8 @@ import {
   draggable,
   dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { attachClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { useEffect, useRef, useState } from "react";
 import invariant from "tiny-invariant";
 
@@ -14,15 +14,17 @@ import {
   isDraggingACard,
   type TCard,
 } from "./../types/data";
-import EditIcon from './icons/EditIcon';
-import DeleteIcon from './icons/DeleteIcon';
+import EditIcon from "./icons/EditIcon";
+import DeleteIcon from "./icons/DeleteIcon";
+import IconButton from "./common/IconButton";
+import { Checkbox } from "./common/Checkbox";
 
 type TCardState = "idle" | "is-dragging" | "is-over";
 
 const innerStyles: { [Key in TCardState]: string } = {
-  idle: 'task-card card-hover cursor-grab',
-  'is-dragging': 'opacity-40 transform rotate-2',
-  'is-over': 'ring-2 ring-blue-500 ring-offset-2',
+  idle: "task-card card-hover cursor-grab",
+  "is-dragging": "opacity-40 transform rotate-2",
+  "is-over": "ring-2 ring-blue-500 ring-offset-2",
 };
 
 interface TaskCardProps {
@@ -46,7 +48,7 @@ export function Card({
   onToggleComplete,
   onToggleSelect,
   onEdit,
-  onDelete
+  onDelete,
 }: TaskCardProps) {
   const outerRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -74,15 +76,12 @@ export function Card({
             columnId,
             rect: element.getBoundingClientRect(),
           });
-          console.log('Card drag start:', { cardId: card.id, columnId });
           return data;
         },
         onDragStart() {
-          console.log('Card drag start:', card.id);
           setState("is-dragging");
         },
         onDrop() {
-          console.log('Card drag end:', card.id);
           setState("idle");
         },
       }),
@@ -94,29 +93,22 @@ export function Card({
           return attachClosestEdge(data, {
             element,
             input,
-            allowedEdges: ['top', 'bottom']
+            allowedEdges: ["top", "bottom"],
           });
         },
-        onDragEnter({ source, location }) {
-          console.log('Card drag enter:', {
-            draggingCard: isCardData(source.data) ? source.data.card.id : 'unknown',
-            targetCard: card.id,
-            isSameCard: isCardData(source.data) ? source.data.card.id === card.id : false,
-            location: location.current.input
-          });
+        onDragEnter({ source }) {
+          
           if (isCardData(source.data) && source.data.card.id !== card.id) {
             setState("is-over");
           }
         },
         onDragLeave() {
-          console.log('Card drag leave:', card.id);
           setState("idle");
         },
         onDrop() {
-          console.log('Card drop:', card.id);
           setState("idle");
         },
-      }),
+      })
     );
   }, [card, columnId]);
 
@@ -171,16 +163,18 @@ export function Card({
    */
   const highlightSearchTerm = (text: string, searchTerm: string) => {
     if (!searchTerm) return text;
-    
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
+
+    const regex = new RegExp(`(${searchTerm})`, "gi");
     const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <mark key={index} className="bg-yellow-200 px-1 rounded font-medium">
           {part}
         </mark>
-      ) : part
+      ) : (
+        part
+      )
     );
   };
 
@@ -189,23 +183,23 @@ export function Card({
       <div
         ref={innerRef}
         className={`p-4 ${innerStyles[state]} ${
-          card.completed ? 'completed-task' : ''
-        } ${card.selected ? 'selected-task' : ''}`}
+          card.completed ? "completed-task" : ""
+        } ${card.selected ? "selected-task" : ""}`}
       >
         <div className="flex items-start gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={card.selected}
               onChange={handleToggleSelect}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+              color="blue"
             />
-            <input
-              type="checkbox"
+
+            <Checkbox
               checked={card.completed}
               onChange={handleToggleComplete}
-              className="rounded border-gray-300 text-green-600 focus:ring-green-500 h-4 w-4"
+              color="green"
             />
+
             {isEditing ? (
               <input
                 type="text"
@@ -213,14 +207,14 @@ export function Card({
                 onChange={(e) => setEditText(e.target.value)}
                 onBlur={handleSaveEdit}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSaveEdit();
-                  if (e.key === 'Escape') handleCancelEdit();
+                  if (e.key === "Enter") handleSaveEdit();
+                  if (e.key === "Escape") handleCancelEdit();
                 }}
-                className="input-field"
+                className="w-full pl-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 bg-white text-base"
                 autoFocus
               />
             ) : (
-              <div 
+              <div
                 className="flex-1 min-w-0 cursor-pointer text-gray-800 font-medium"
                 onDoubleClick={handleEdit}
               >
@@ -229,20 +223,19 @@ export function Card({
             )}
           </div>
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
+              icon={<EditIcon />}
               onClick={handleEdit}
-              className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-colors duration-200"
               title="Edit"
-            >
-              <EditIcon />
-            </button>
-            <button
+              variant="warning"
+            />
+
+            <IconButton
+              icon={<DeleteIcon />}
               onClick={handleDelete}
-              className="p-1.5 hover:bg-red-100 rounded-lg text-gray-500 hover:text-red-600 transition-colors duration-200"
               title="Delete"
-            >
-              <DeleteIcon />
-            </button>
+              variant="danger"
+            />
           </div>
         </div>
       </div>
